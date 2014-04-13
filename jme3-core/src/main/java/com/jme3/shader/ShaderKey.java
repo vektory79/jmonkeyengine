@@ -44,18 +44,30 @@ public class ShaderKey extends AssetKey<Shader> {
     protected DefineList defines;
     protected String vertLanguage;
     protected String fragLanguage;
+    protected String geomName;
+    protected String tcName;
+    protected String teName;
+    protected String geomLanguage;
+    protected String tcLanguage;
+    protected String teLanguage;
     protected int cachedHashedCode = 0;
     protected boolean usesShaderNodes = false;
 
     public ShaderKey(){
     }
 
-    public ShaderKey(String vertName, String fragName, DefineList defines, String vertLanguage, String fragLanguage){
+    public ShaderKey(String vertName, String fragName, String geomName, String tcName, String teName, DefineList defines, String vertLanguage, String fragLanguage, String geomLang, String tcLang, String teLang) {
         super(vertName);
         this.fragName = fragName;
+        this.geomName = geomName;
+        this.tcName = tcName;
+        this.teName = teName;
         this.defines = defines;
         this.vertLanguage = vertLanguage;
         this.fragLanguage = fragLanguage;
+        this.geomLanguage = geomLang;
+        this.tcLanguage = tcLang;
+        this.teLanguage = teLang;
     }
     
     @Override
@@ -74,7 +86,7 @@ public class ShaderKey extends AssetKey<Shader> {
     @Override
     public boolean equals(Object obj) {
         final ShaderKey other = (ShaderKey) obj;
-        if (name.equals(other.name) && fragName.equals(other.fragName)){
+        if (name.equals(other.name) && fragName.equals(other.fragName) && (geomName == null ? other.geomName == null : geomName.equals(other.geomName)) && (tcName == null ? other.tcName == null : tcName.equals(other.tcName)) && (teName == null ? other.teName == null : teName.equals(other.teName))) {
             if (defines != null && other.defines != null) {
                 return defines.equals(other.defines);
             } else if (defines != null || other.defines != null) {
@@ -110,6 +122,18 @@ public class ShaderKey extends AssetKey<Shader> {
         return fragName;
     }
 
+    public String getGeomName() {
+        return geomName;
+    }
+
+    public String getTcName() {
+        return tcName;
+    }
+
+    public String getTeName() {
+        return teName;
+    }
+
     /**
      * @deprecated Use {@link #getVertexShaderLanguage() } instead.
      */
@@ -126,6 +150,18 @@ public class ShaderKey extends AssetKey<Shader> {
         return fragLanguage;
     }
 
+    public String getGeometryShaderLanguage() {
+        return geomLanguage;
+    }
+
+    public String getTessControlShaderLanguage() {
+        return tcLanguage;
+    }
+
+    public String getTessEvaluationShaderLanguage() {
+        return teLanguage;
+    }
+
     public boolean isUsesShaderNodes() {
         return usesShaderNodes;
     }
@@ -139,8 +175,17 @@ public class ShaderKey extends AssetKey<Shader> {
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(fragName, "fragment_name", null);
+        oc.write(geomName, "geometry_name", null);
+        oc.write(tcName, "tess_control_name", null);
+        oc.write(teName, "tess_eval_name", null);
+        
         oc.write(vertLanguage, "language", null);
         oc.write(fragLanguage, "frag_language", null);
+        oc.write(geomLanguage, "geom_language", null);
+        oc.write(tcLanguage, "tc_language", null);
+        oc.write(teLanguage, "te_language", null);
+
+
     }
 
     @Override

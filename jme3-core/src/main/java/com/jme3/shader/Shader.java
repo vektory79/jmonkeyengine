@@ -74,7 +74,11 @@ public final class Shader extends NativeObject {
         /**
          * Control geometry assembly. (e.g compile a triangle list from input data)
          */
-        Geometry;
+        Geometry,
+        
+        TesselationControl,
+        
+        TesselationEvaluation;
     }
 
     /**

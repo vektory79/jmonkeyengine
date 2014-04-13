@@ -41,9 +41,15 @@ public class ShaderCheck {
                 dl.addFrom(techDef.getShaderPresetDefines());
                 ShaderKey shaderKey = new ShaderKey(techDef.getVertexShaderName(),
                                                     techDef.getFragmentShaderName(),
+                                                    techDef.getGeometryShaderName(),
+                                                    techDef.getTessControlShaderName(),
+                                                    techDef.getTessEvaluationShaderName(),
                                                     dl,
                                                     techDef.getVertexShaderLanguage(),
-                                                    techDef.getFragmentShaderLanguage());
+                                                    techDef.getFragmentShaderLanguage(),
+                                                    techDef.getGeometryShaderLanguage(),
+                                                    techDef.getTessControlShaderLanguage(),
+                                                    techDef.getTessEvaluationShaderLanguage());
                 Shader shader = assetManager.loadShader(shaderKey);
                 
                 for (Validator validator : validators){

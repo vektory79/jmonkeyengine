@@ -67,8 +67,8 @@ import jme3tools.shader.ShaderDebug;
 import static org.lwjgl.opengl.ARBDrawInstanced.*;
 import static org.lwjgl.opengl.ARBInstancedArrays.*;
 import static org.lwjgl.opengl.ARBMultisample.*;
-import static org.lwjgl.opengl.ARBTextureMultisample.*;
-import static org.lwjgl.opengl.ARBVertexArrayObject.*;
+//import static org.lwjgl.opengl.ARBTextureMultisample.*;
+//import static org.lwjgl.opengl.ARBVertexArrayObject.*;
 import org.lwjgl.opengl.ContextCapabilities;
 import static org.lwjgl.opengl.EXTFramebufferBlit.*;
 import static org.lwjgl.opengl.EXTFramebufferMultisample.*;
@@ -87,6 +87,11 @@ import org.lwjgl.opengl.GLContext;
 //import static org.lwjgl.opengl.GL21.*;
 //import static org.lwjgl.opengl.GL30.*;
 
+import static org.lwjgl.opengl.GL30.*;
+import static org.lwjgl.opengl.GL32.*;
+import static org.lwjgl.opengl.GL40.*;
+import org.lwjgl.opengl.*;
+//import static org.lwjgl.opengl.ARBDrawInstanced.*;
 
 public class LwjglRenderer implements Renderer {
 
@@ -165,10 +170,15 @@ public class LwjglRenderer implements Renderer {
                         caps.add(Caps.OpenGL31);
                         if (ctxCaps.OpenGL32) {
                             caps.add(Caps.OpenGL32);
+                            caps.add(Caps.GeometryShader);
+                            if(ctxCaps.OpenGL40){
+                                caps.add(Caps.OpenGL40);
+                                caps.add(Caps.TesselationShader);
                         }
                     }
                 }
             }
+        }
         }
         
         //workaround, always assume we support GLSL100
@@ -215,7 +225,9 @@ public class LwjglRenderer implements Renderer {
 
             // fall through intentional
             case 400:
+                caps.add(Caps.GLSL400);
             case 330:
+                caps.add(Caps.GLSL330);
             case 150:
                 caps.add(Caps.GLSL150);
             case 140:
@@ -958,6 +970,12 @@ public class LwjglRenderer implements Renderer {
                 return GL_FRAGMENT_SHADER;
             case Vertex:
                 return GL_VERTEX_SHADER;
+            case Geometry:
+                return GL32.GL_GEOMETRY_SHADER;
+            case TesselationControl:
+                return GL40.GL_TESS_CONTROL_SHADER;
+            case TesselationEvaluation:
+                return GL40.GL_TESS_EVALUATION_SHADER;
 //            case Geometry:
 //                return ARBGeometryShader4.GL_GEOMETRY_SHADER_ARB;
             default:
@@ -2419,6 +2437,8 @@ public class LwjglRenderer implements Renderer {
                 return GL_TRIANGLE_FAN;
             case TriangleStrip:
                 return GL_TRIANGLE_STRIP;
+            case Patches:
+                return GL_PATCHES;
             default:
                 throw new UnsupportedOperationException("Unrecognized mesh mode: " + mode);
         }
@@ -2566,6 +2586,9 @@ public class LwjglRenderer implements Renderer {
         if (context.lineWidth != mesh.getLineWidth()) {
             glLineWidth(mesh.getLineWidth());
             context.lineWidth = mesh.getLineWidth();
+        }
+        if(mesh.getMode()==Mode.Patches){
+            GL40.glPatchParameteri(GL40.GL_PATCH_VERTICES, mesh.getPatchVertices());
         }
 
         statistics.onMeshDrawn(mesh, lod, count);

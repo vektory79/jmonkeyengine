@@ -134,8 +134,8 @@ public class Mesh implements Savable, Cloneable {
          * {@link Mesh#setElementLengths(int[]) element lengths} must 
          * be specified for this mode.
          */
-        Hybrid(false);
-        
+        Hybrid(false),
+        Patches(true);
         private boolean listMode = false;
         
         private Mode(boolean listMode){
@@ -171,7 +171,7 @@ public class Mesh implements Savable, Cloneable {
     private float lineWidth = 1;
 
     private transient int vertexArrayID = -1;
-
+    private int patchVertices = 3;
     private int vertCount = -1;
     private int elementCount = -1;
     private int instanceCount = -1;
@@ -715,6 +715,8 @@ public class Mesh implements Savable, Cloneable {
                 return bufSize;
             case LineStrip:
                 return bufSize - 1;
+            case Patches:
+                return bufSize-1;
             default:
                 throw new UnsupportedOperationException();
         }
@@ -1123,6 +1125,14 @@ public class Mesh implements Savable, Cloneable {
             return null;
         
         return IndexBuffer.wrapIndexBuffer(vb.getData());
+    }
+
+    public int getPatchVertices() {
+        return patchVertices;
+    }
+
+    public void setPatchVertices(int patchVertices) {
+        this.patchVertices = patchVertices;
     }
 
     /**

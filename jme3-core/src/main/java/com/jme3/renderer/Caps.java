@@ -106,6 +106,7 @@ public enum Caps {
      */
     OpenGL32,
 
+    OpenGL40,
     /**
      * Supports OpenGL ARB program.
      * <p>
@@ -149,6 +150,7 @@ public enum Caps {
      */
     GLSL330,
 
+    GLSL400,
     /**
      * Supports reading from textures inside the vertex shader.
      */
@@ -158,6 +160,7 @@ public enum Caps {
      * Supports geometry shader.
      */
     GeometryShader,
+    TesselationShader,
 
     /**
      * Supports texture arrays

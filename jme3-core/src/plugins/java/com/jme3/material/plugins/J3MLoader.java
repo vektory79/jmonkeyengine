@@ -71,10 +71,14 @@ public class J3MLoader implements AssetLoader {
     
     private String vertLanguage;
     private String fragLanguage;
-    
+    private String geomLanguage;
+    private String tessControlLanguage;
+    private String tessEvaluationLanguage;
     private String vertName;
     private String fragName;
-    
+    private String geomName;
+    private String tessControlName;
+    private String tessEvaluationName;
     private static final String whitespacePattern = "\\p{javaWhitespace}+";
 
     public J3MLoader(){
@@ -98,6 +102,15 @@ public class J3MLoader implements AssetLoader {
         } else if (typeAndLang[0].equals("FragmentShader")) {
             fragName = split[1].trim();
             fragLanguage = typeAndLang[1];
+        } else if (typeAndLang[0].equals("GeometryShader")) {
+            geomName = split[1].trim();
+            geomLanguage = typeAndLang[1];
+        } else if (typeAndLang[0].equals("TessControlShader")) {
+            tessControlName = split[1].trim();
+            tessControlLanguage = typeAndLang[1];
+        } else if (typeAndLang[0].equals("TessEvaluationShader")) {
+            tessEvaluationName = split[1].trim();
+            tessEvaluationLanguage = typeAndLang[1];
         }
     }
 
@@ -411,8 +424,11 @@ public class J3MLoader implements AssetLoader {
     
     private void readTechniqueStatement(Statement statement) throws IOException{
         String[] split = statement.getLine().split("[ \\{]");       
-        if (split[0].equals("VertexShader") ||
-            split[0].equals("FragmentShader")){
+        if (split[0].equals("VertexShader")
+                || split[0].equals("FragmentShader")
+                || split[0].equals("GeometryShader")
+                || split[0].equals("TessControlShader")
+                || split[0].equals("TessEvaluationShader")) {
             readShaderStatement(statement.getLine());
         }else if (split[0].equals("LightMode")){
             readLightMode(statement.getLine());
@@ -481,16 +497,22 @@ public class J3MLoader implements AssetLoader {
             technique.setShaderFile(technique.hashCode() + "", technique.hashCode() + "", "GLSL100", "GLSL100");
         }
 
-        if (vertName != null && fragName != null){
-            technique.setShaderFile(vertName, fragName, vertLanguage, fragLanguage);
+        if (vertName != null && fragName != null) {
+            technique.setShaderFile(vertName, fragName, geomName,tessControlName,tessEvaluationName, vertLanguage, fragLanguage,geomLanguage,tessControlLanguage,tessEvaluationLanguage);
         }
         
         materialDef.addTechniqueDef(technique);
         technique = null;
         vertName = null;
         fragName = null;
+        geomName=null;
+        tessControlName=null;
+        tessEvaluationName=null;
         vertLanguage = null;
         fragLanguage = null;
+        geomLanguage=null;
+        tessControlLanguage=null;
+        tessEvaluationLanguage=null;
     }
 
     private void loadFromRoot(List<Statement> roots) throws IOException{       
