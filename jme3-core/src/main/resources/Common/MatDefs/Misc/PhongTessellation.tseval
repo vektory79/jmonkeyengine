@@ -1,0 +1,69 @@
+struct PhongPatch
+{
+ float termIJ;
+ float termJK;
+ float termIK;
+};
+
+uniform mat4 g_WorldViewProjectionMatrix;
+
+
+layout(triangles,fractional_odd_spacing,ccw) in;
+
+out TessData {
+    vec3 Normal;
+    vec2 TexCoord;    
+} TessOut;
+
+in gl_PerVertex {
+    vec3 gl_Position;
+    vec3 Normal;
+    vec2 TexCoord;
+    PhongPatch phongPatch;
+} gl_TctrlIn[];
+
+#define Pi  gl_TctrlIn[0].gl_Position
+#define Pj  gl_TctrlIn[1].gl_Position
+#define Pk  gl_TctrlIn[2].gl_Position
+#define tc1 gl_TessCoord
+
+void main (){
+vec3 tc2 = tc1*tc1;
+ 
+ // compute texcoord and normal
+ TessOut.TexCoord = gl_TessCoord[0]*gl_TctrlIn[0].TexCoord
+           + gl_TessCoord[1]*gl_TctrlIn[1].TexCoord
+           + gl_TessCoord[2]*gl_TctrlIn[2].TexCoord;
+ TessOut.Normal   = gl_TessCoord[0]*gl_TctrlIn[0].Normal
+           + gl_TessCoord[1]*gl_TctrlIn[1].Normal
+           + gl_TessCoord[2]*gl_TctrlIn[2].Normal;
+ 
+ // interpolated position
+ vec3 barPos = gl_TessCoord[0]*Pi
+             + gl_TessCoord[1]*Pj
+             + gl_TessCoord[2]*Pk;
+ 
+ // build terms
+ vec3 termIJ = vec3(gl_TctrlIn[0].phongPatch.termIJ,
+                    gl_TctrlIn[1].phongPatch.termIJ,
+                    gl_TctrlIn[2].phongPatch.termIJ);
+ vec3 termJK = vec3(gl_TctrlIn[0].phongPatch.termJK,
+                    gl_TctrlIn[1].phongPatch.termJK,
+                    gl_TctrlIn[2].phongPatch.termJK);
+ vec3 termIK = vec3(gl_TctrlIn[0].phongPatch.termIK,
+                    gl_TctrlIn[1].phongPatch.termIK,
+                    gl_TctrlIn[2].phongPatch.termIK);
+ 
+ // phong tesselated pos
+ vec3 phongPos   = tc2[0]*Pi
+                 + tc2[1]*Pj
+                 + tc2[2]*Pk
+                 + tc1[0]*tc1[1]*termIJ
+                 + tc1[1]*tc1[2]*termJK
+                 + tc1[2]*tc1[0]*termIK;
+ 
+ // final position
+ vec3 finalPos = (1.0-0.5)*barPos +phongPos;
+ gl_Position   = g_WorldViewProjectionMatrix*vec4(finalPos,1.0);
+}
+
