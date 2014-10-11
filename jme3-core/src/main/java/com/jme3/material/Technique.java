@@ -193,9 +193,15 @@ public class Technique /* implements Savable */ {
         
         ShaderKey key = new ShaderKey(def.getVertexShaderName(),
                     def.getFragmentShaderName(),
+                    def.getGeometryShaderName(),
+                    def.getTessControlShaderName(),
+                    def.getTessEvaluationShaderName(),
                     getAllDefines(),
                     def.getVertexShaderLanguage(),
-                    def.getFragmentShaderLanguage());
+                    def.getFragmentShaderLanguage(),
+                    def.getGeometryShaderLanguage(),
+                def.getTessControlShaderLanguage(),
+                def.getTessEvaluationShaderLanguage());
         
         if (getDef().isUsingShaderNodes()) {                 
            manager.getShaderGenerator(rendererCaps).initialize(this);           

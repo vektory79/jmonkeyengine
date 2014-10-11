@@ -1,0 +1,27 @@
+MaterialDef Phong Tessellation {
+
+    MaterialParameters {
+        Texture2D DiffuseMap
+    }
+
+    Technique {
+
+        VertexShader GLSL400:   Common/MatDefs/Misc/PhongTessellation.vert
+        TessControlShader GLSL400: Common/MatDefs/Misc/PhongTessellation.tsctrl
+        TessEvaluationShader GLSL400: Common/MatDefs/Misc/PhongTessellation.tseval
+        FragmentShader GLSL400: Common/MatDefs/Misc/PhongTessellation.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            NormalMatrix
+            WorldViewMatrix
+            ViewMatrix
+            CameraPosition
+            WorldMatrix
+        }
+
+        Defines {
+            DIFFUSEMAP : DiffuseMap
+        }
+    }
+}

@@ -1,0 +1,65 @@
+uniform mat4 g_WorldViewProjectionMatrix;
+layout(vertices = 3) out;
+
+struct PhongPatch
+{
+ float termIJ;
+ float termJK;
+ float termIK;
+};
+
+
+in VertexData {
+    vec3 Position;
+    vec3 Normal;
+    vec2 TexCoord;
+} VertexIn[];
+
+
+
+out gl_PerVertex{
+    vec3 Position;
+    vec3 Normal;
+    vec2 TexCoord;
+    PhongPatch phongPatch;
+} gl_TctrlOut[];
+
+float GetPostProjectionSphereExtent(vec3 Origin, float Diameter){
+    return ((Diameter *88.72696*0.5)/ distance((g_WorldViewProjectionMatrix* vec4( Origin,1.0)).xyz, vec3(0.0,0.0,0.01)))*1.0;
+}
+
+float PIi(int i, vec3 q){
+    vec3 q_minus_p = q - VertexIn[i].Position;
+    return q[gl_InvocationID] - dot(q_minus_p, VertexIn[i].Normal)
+                           * VertexIn[i].Normal[gl_InvocationID];
+}
+
+#define Pi  VertexIn[0].Position
+#define Pj  VertexIn[1].Position
+#define Pk  VertexIn[2].Position
+
+void main() {
+ // get data
+ gl_TctrlOut[gl_InvocationID].Position = VertexIn[gl_InvocationID].Position;
+ gl_TctrlOut[gl_InvocationID].Normal   = VertexIn[gl_InvocationID].Normal;
+ gl_TctrlOut[gl_InvocationID].TexCoord = VertexIn[gl_InvocationID].TexCoord;
+ 
+ // compute patch data
+ gl_TctrlOut[gl_InvocationID].phongPatch.termIJ = PIi(0,Pj) + PIi(1,Pi);
+ gl_TctrlOut[gl_InvocationID].phongPatch.termJK = PIi(1,Pk) + PIi(2,Pj);
+ gl_TctrlOut[gl_InvocationID].phongPatch.termIK = PIi(2,Pi) + PIi(0,Pk);
+
+gl_TessLevelOuter[gl_InvocationID] = min(64.0,GetPostProjectionSphereExtent((VertexIn[(gl_InvocationID+1)%3].Position + VertexIn[(gl_InvocationID+2)%3].Position) * 0.5, distance(VertexIn[(gl_InvocationID+1)%3].Position, VertexIn[(gl_InvocationID+2)%3].Position)));
+if (gl_InvocationID == 2){
+            gl_TessLevelInner[0] = max(gl_TessLevelOuter[0], max(gl_TessLevelOuter[2],gl_TessLevelOuter[1]));
+            if ((g_WorldViewProjectionMatrix*  vec4(gl_TctrlOut[0].Position,1.0)).z <= 0.0 
+                && (g_WorldViewProjectionMatrix*  vec4(gl_TctrlOut[1].Position,1.0)).z <= 0.0 
+                && (g_WorldViewProjectionMatrix*  vec4(gl_TctrlOut[2].Position,1.0)).z <= 0.0 )
+            {      
+                gl_TessLevelInner[0] = 0.0;
+                gl_TessLevelOuter[0] = 0.0;
+                gl_TessLevelOuter[1] = 0.0;
+                gl_TessLevelOuter[2] = 0.0;
+            }
+    }
+}

@@ -56,6 +56,22 @@ public class TechniqueDef implements Savable {
      */
     public static final int SAVABLE_VERSION = 1;
     
+ public void setShaderFile(String vertexShader, String fragmentShader, String vertLanguage, String fragLanguage) {
+        this.vertName = vertexShader;
+        this.fragName = fragmentShader;
+
+        this.vertLanguage = vertLanguage;
+        this.fragLanguage = fragLanguage;
+
+        Caps vertCap = Caps.valueOf(vertLanguage);
+        requiredCaps.add(vertCap);
+        Caps fragCap = Caps.valueOf(fragLanguage);
+        requiredCaps.add(fragCap);
+        Caps geomCap = Caps.valueOf(geomLanguage);
+        requiredCaps.add(geomCap);
+        usesShaders = true;
+    }
+
     /**
      * Describes light rendering mode.
      */
@@ -106,9 +122,14 @@ public class TechniqueDef implements Savable {
 
     private String vertName;
     private String fragName;
+    private String geomName;
+    private String tcName;
+    private String teName;
     private String vertLanguage;
     private String fragLanguage;
-    
+    private String geomLanguage;
+    private String tcLanguage;
+    private String teLanguage;
     private DefineList presetDefines;
     private boolean usesShaders;
     private boolean usesNodes = false;
@@ -250,18 +271,54 @@ public class TechniqueDef implements Savable {
      * @param vertLanguage The vertex shader language
      * @param fragLanguage The fragment shader language
      */
-    public void setShaderFile(String vertexShader, String fragmentShader, String vertLanguage, String fragLanguage){
+    public void setShaderFile(String vertexShader, String fragmentShader, String geomShader, String tcShader, String teShader, String vertLanguage, String fragLanguage, String geomLang, String tcLang, String teLang) {
         this.vertName = vertexShader;
         this.fragName = fragmentShader;
+        this.geomName = geomShader;
+        this.tcName = tcShader;
+        this.teName = teShader;
         this.vertLanguage = vertLanguage;
         this.fragLanguage = fragLanguage;
-
+        this.geomLanguage = geomLang;
+        this.tcLanguage = tcLang;
+        this.teLanguage = teLang;
         Caps vertCap = Caps.valueOf(vertLanguage);
         requiredCaps.add(vertCap);
         Caps fragCap = Caps.valueOf(fragLanguage);
         requiredCaps.add(fragCap);
+        //System.out.println(geomLanguage);
+        if(geomLanguage!=null){
+        Caps geomCap = Caps.valueOf(geomLanguage);
 
+        requiredCaps.add(geomCap);
+        }
+        if(tcLanguage!=null){
+        Caps tcCaps = Caps.valueOf(tcLanguage);
+        requiredCaps.add(tcCaps);
+        }
+        if(teLanguage!=null){
+        Caps teCaps = Caps.valueOf(teLanguage);
+        requiredCaps.add(teCaps);
+        }
+        if (geomName != null) {
+            requiredCaps.add(Caps.GeometryShader);
+        }
+        if (tcName != null || teName != null) {
+            requiredCaps.add(Caps.TesselationShader);
+        }
         usesShaders = true;
+    }
+
+    public String getGeometryShaderName() {
+        return geomName;
+    }
+
+    public String getTessControlShaderName() {
+        return tcName;
+    }
+
+    public String getTessEvaluationShaderName() {
+        return teName;
     }
 
     /**
@@ -372,6 +429,18 @@ public class TechniqueDef implements Savable {
         return vertLanguage;
     }
     
+    public String getGeometryShaderLanguage() {
+        return geomLanguage;
+    }
+    
+    public String getTessControlShaderLanguage() {
+        return tcLanguage;
+    }
+    
+    public String getTessEvaluationShaderLanguage() {
+        return teLanguage;
+    }
+
     /**
      * Adds a new world parameter by the given name.
      * 
@@ -415,8 +484,14 @@ public class TechniqueDef implements Savable {
         oc.write(name, "name", null);
         oc.write(vertName, "vertName", null);
         oc.write(fragName, "fragName", null);
+        oc.write(geomName, "geomName", null);
+        oc.write(tcName, "tcName", null);
+        oc.write(teName, "teName", null);
         oc.write(vertLanguage, "vertLanguage", null);
         oc.write(vertLanguage, "fragLanguage", null);
+        oc.write(geomLanguage, "geomLanguage", null);
+        oc.write(tcLanguage, "tcLanguage", null);
+        oc.write(teLanguage, "teLanguage", null);
         oc.write(presetDefines, "presetDefines", null);
         oc.write(lightMode, "lightMode", LightMode.Disable);
         oc.write(shadowMode, "shadowMode", ShadowMode.Disable);

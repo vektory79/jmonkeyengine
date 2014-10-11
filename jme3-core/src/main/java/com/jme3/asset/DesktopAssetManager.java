@@ -406,14 +406,28 @@ public class DesktopAssetManager implements AssetManager {
             } else {
                 String vertName = key.getVertName();
                 String fragName = key.getFragName();
-
+                String geomName = key.getGeomName();
+                String tcName = key.getTcName();
+                String teName = key.getTeName();
                 String vertSource = (String) loadAsset(new AssetKey(vertName));
                 String fragSource = (String) loadAsset(new AssetKey(fragName));
-
+                String geomSource = geomName == null ? null : (String) loadAsset(new AssetKey(geomName));
+                String tcSource = tcName == null ? null : (String) loadAsset(new AssetKey(tcName));
+                String teSource = teName == null ? null : (String) loadAsset(new AssetKey(teName));
                 shader = new Shader();
                 shader.initialize();
                 shader.addSource(Shader.ShaderType.Vertex, vertName, vertSource, key.getDefines().getCompiled(), key.getVertexShaderLanguage());
                 shader.addSource(Shader.ShaderType.Fragment, fragName, fragSource, key.getDefines().getCompiled(), key.getFragmentShaderLanguage());
+                if (geomName != null) {
+                    shader.addSource(Shader.ShaderType.Geometry, geomName, geomSource, key.getDefines().getCompiled(), key.getVertexShaderLanguage());
+            }
+                if (tcName != null) {
+                    shader.addSource(Shader.ShaderType.TesselationControl, tcName, tcSource, key.getDefines().getCompiled(), key.getVertexShaderLanguage());
+                }
+                if (teName != null) {
+                    shader.addSource(Shader.ShaderType.TesselationEvaluation, teName, teSource, key.getDefines().getCompiled(), key.getVertexShaderLanguage());
+                }
+
             }
 
             cache.addToCache(key, shader);
